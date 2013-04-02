@@ -65,6 +65,7 @@ func (p Prefix) Shift(word string) {
 type Chain struct {
 	Chain     map[string]*Suffix
 	PrefixLen int
+	strings   map[string]string
 }
 
 type Suffix struct {
@@ -74,7 +75,7 @@ type Suffix struct {
 
 // NewChain returns a new Chain with prefixes of prefixLen words.
 func NewChain(prefixLen int) *Chain {
-	return &Chain{make(map[string]*Suffix), prefixLen}
+	return &Chain{make(map[string]*Suffix), prefixLen, make(map[string]string)}
 }
 
 // Build reads text from the provided []string and
@@ -90,6 +91,8 @@ func (c *Chain) Build(words []string) {
 }
 
 func (c *Chain) increment(prefix, suffix string) {
+	prefix, suffix = c.intern(prefix), c.intern(suffix)
+
 	s := c.Chain[prefix]
 	if s == nil {
 		s = &Suffix{0, make(map[string]int)}
@@ -98,6 +101,16 @@ func (c *Chain) increment(prefix, suffix string) {
 
 	s.T++
 	s.W[suffix]++
+}
+
+func (c *Chain) intern(s string) string {
+	if ss, ok := c.strings[s]; ok {
+		return ss
+	}
+
+	s = string([]byte(s)) // avoid storing whole lines of text
+	c.strings[s] = s
+	return s
 }
 
 // Generate returns a string of at most n words generated from Chain.
