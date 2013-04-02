@@ -22,9 +22,14 @@ var (
 	n      = flag.Int("n", 5, "the number of lines of text to generate")
 )
 
+var startup = func() {}
+var cleanup = func() {}
+
 func main() {
 	var err error
 	flag.Parse()
+
+	startup()
 
 	r := rand.New(rand.NewSource(*seed))
 
@@ -48,10 +53,12 @@ func main() {
 		defer out.Close()
 	}
 
+	b := bufio.NewReaderSize(in, 0x10000)
+
 	chain := NewChain(2)
 
 	if *p {
-		g, err := gzip.NewReader(in)
+		g, err := gzip.NewReader(b)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "error while reading precompiled file: %s\n", err)
 			return
@@ -65,8 +72,6 @@ func main() {
 			return
 		}
 	} else {
-		b := bufio.NewReader(in)
-
 		for {
 			line, err := b.ReadString('\n')
 			if err == io.EOF {
@@ -94,4 +99,6 @@ func main() {
 			fmt.Fprintln(out, chain.Generate(100, r))
 		}
 	}
+
+	cleanup()
 }
