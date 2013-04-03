@@ -38,7 +38,7 @@ and appending the suffix (making the new prefix is "am a"). Repeat this process
 until we can't find any suffixes for the current prefix or we exceed the word
 limit. (The word limit is necessary as the chain table may contain cycles.)
 */
-package main
+package markov
 
 import (
 	"math/rand"
@@ -75,7 +75,7 @@ type Suffix struct {
 
 // NewChain returns a new Chain with prefixes of prefixLen words.
 func NewChain(prefixLen int) *Chain {
-	return &Chain{make(map[string]*Suffix), prefixLen, make(map[string]string)}
+	return &Chain{make(map[string]*Suffix), prefixLen, nil}
 }
 
 // Build reads text from the provided []string and
@@ -106,6 +106,10 @@ func (c *Chain) increment(prefix, suffix string) {
 func (c *Chain) intern(s string) string {
 	if ss, ok := c.strings[s]; ok {
 		return ss
+	}
+
+	if c.strings == nil {
+		c.strings = make(map[string]string)
 	}
 
 	s = string([]byte(s)) // avoid storing whole lines of text

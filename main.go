@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	markov "github.com/Nightgunner5/markov/lib"
 	"io"
 	"math/rand"
 	"os"
@@ -30,6 +31,7 @@ func main() {
 	flag.Parse()
 
 	startup()
+	defer cleanup()
 
 	r := rand.New(rand.NewSource(*seed))
 
@@ -55,7 +57,7 @@ func main() {
 
 	b := bufio.NewReaderSize(in, 0x10000)
 
-	chain := NewChain(2)
+	chain := markov.NewChain(2)
 
 	if *p {
 		g, err := gzip.NewReader(b)
@@ -99,6 +101,4 @@ func main() {
 			fmt.Fprintln(out, chain.Generate(100, r))
 		}
 	}
-
-	cleanup()
 }
