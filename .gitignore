@@ -1,4 +1,6 @@
 markov
 markov.exe
-*.json.gz
+server/server
+server/server.exe
+*.gz
 *.prof

@@ -3,7 +3,7 @@ package main
 import (
 	"bufio"
 	"compress/gzip"
-	"encoding/json"
+	"encoding/gob"
 	"flag"
 	"fmt"
 	markov "github.com/Nightgunner5/markov/lib"
@@ -57,7 +57,7 @@ func main() {
 
 	b := bufio.NewReaderSize(in, 0x10000)
 
-	chain := markov.NewChain(2)
+	chain := markov.NewSTChain()
 
 	if *p {
 		g, err := gzip.NewReader(b)
@@ -66,7 +66,7 @@ func main() {
 			return
 		}
 
-		err = json.NewDecoder(g).Decode(&chain)
+		err = gob.NewDecoder(g).Decode(&chain)
 		g.Close()
 
 		if err != nil {
@@ -89,7 +89,7 @@ func main() {
 
 	if *c {
 		g, _ := gzip.NewWriterLevel(out, gzip.BestCompression)
-		err = json.NewEncoder(g).Encode(chain)
+		err = gob.NewEncoder(g).Encode(chain)
 		g.Close()
 
 		if err != nil {
